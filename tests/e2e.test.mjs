@@ -68,6 +68,12 @@ test("상품 export CSV를 업로드해 상품 목록으로 변환한다", async
   assert.match(catalog, /digital_confirmed/);
 });
 
+test("개인정보처리방침 페이지가 열린다", async () => {
+  await page.goto(`${BASE_URL}/privacy`);
+  await page.getByRole("heading", { name: "개인정보처리방침", level: 1 }).waitFor();
+  await page.getByText("수집하지 않는 정보").waitFor();
+});
+
 test("사용 안내 페이지가 열린다", async () => {
   await page.goto(`${BASE_URL}/guide`);
   await page.getByRole("heading", { name: "사용 안내", level: 1 }).waitFor();
