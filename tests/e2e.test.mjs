@@ -68,6 +68,13 @@ test("상품 export CSV를 업로드해 상품 목록으로 변환한다", async
   assert.match(catalog, /digital_confirmed/);
 });
 
+test("사용 안내 페이지가 열린다", async () => {
+  await page.goto(`${BASE_URL}/guide`);
+  await page.getByRole("heading", { name: "사용 안내", level: 1 }).waitFor();
+  await page.getByRole("heading", { name: "4단계로 점검하기" }).waitFor();
+  await page.getByText("발송 규칙 없음", { exact: false }).first().waitFor();
+});
+
 test("Cafe24 미연결 시 안내를 보여준다", async () => {
   await page.goto(`${BASE_URL}/checks/new`);
   await page.getByTestId("cafe24-load").click();

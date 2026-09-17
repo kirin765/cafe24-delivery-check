@@ -23,6 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/checks/new" className="hover:text-slate-900">
                 새 점검
               </Link>
+              <Link href="/guide" className="hover:text-slate-900">
+                사용 안내
+              </Link>
             </nav>
             <span className="ml-auto text-xs text-slate-500">
               업로드 자료는 브라우저에서만 처리됩니다 · 실제 발송 검증 아님

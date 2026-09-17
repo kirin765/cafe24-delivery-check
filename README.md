@@ -35,6 +35,7 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 | `/demo` | 합성 자료 데모. 완전/불완전/오래된 자료를 전환 |
 | `/checks/new` | 상품·규칙·근거 CSV 입력, Cafe24 불러오기, 상품 export 변환, 가져오기 오류·완전성 확인 |
 | `/checks/[id]` | 몰별 판정·근거·수정 체크리스트·규칙 확인 서식·재점검 비교 |
+| `/guide` | 운영자용 사용 안내 (준비물·4단계·판정 의미·문제 해결) |
 
 점검 결과는 브라우저 `localStorage`에 저장됩니다. 서버 저장·로그인·Cafe24 조회는 아직 없습니다.
 
