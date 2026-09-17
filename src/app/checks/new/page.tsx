@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IssueList } from "@/app/components/IssueList";
+import { ProductExportImport } from "./ProductExportImport";
 import { evaluateReadiness, evidenceGaps } from "@/features/checks/evaluateReadiness";
 import { newRunId, saveRun } from "@/features/checks/store";
 import type { CheckRun } from "@/features/checks/types";
@@ -130,6 +131,8 @@ export default function NewCheckPage() {
         </label>
       </section>
 
+      <ProductExportImport onApply={setCatalogText} />
+
       {textFields.map((field) => (
         <section key={field.file} className="rounded-lg border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -149,6 +152,7 @@ export default function NewCheckPage() {
             </button>
           </div>
           <textarea
+            data-testid={`csv-input-${field.file}`}
             value={field.value}
             onChange={(event) => setText(field.file, event.target.value)}
             rows={6}

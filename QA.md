@@ -10,7 +10,7 @@
 | `pnpm run typecheck` | 오류 0 | ☐ |
 | `pnpm run test` | 4 파일 / 30 테스트 통과 | ☐ |
 | `pnpm run build` | 5 라우트 생성, `/checks/[id]` 동적 | ☐ |
-| `pnpm run test:e2e` | 7 E2E 통과 (홈·데모 전환·점검 실행·CSV 다운로드·메모·재점검·미존재 id) | ☐ |
+| `pnpm run test:e2e` | 8 E2E 통과 (홈·export 변환·데모 전환·점검 실행·CSV 다운로드·메모·재점검·미존재 id) | ☐ |
 | `pnpm run verify` | 위 일괄 통과 | ☐ |
 
 ## 1. 데모 (`/demo`)
@@ -30,6 +30,9 @@
 ## 2. 새 점검 (`/checks/new`)
 
 - [ ] `데모 자료 채우기` → `점검 실행` 시 결과 화면으로 이동.
+- [ ] 상품 export 파일(.csv/.xlsx)을 올리면 머리글·열 매핑이 자동 추정되고, `mall_id` 입력 후
+      `상품 목록에 반영`하면 상품 목록 CSV가 채워짐.
+- [ ] `digital_confirmed`가 이름이 아니라 고정값으로만 들어감(자동 분류 없음).
 - [ ] `digital_confirmed` 열을 지우면 **가져오기 오류**로 표시되고 점검 실행이 비활성.
 - [ ] 근거 CSV에서 `collected_at`/`source`/`confirmed_by`를 비우면 “누락/미확인” 목록에 드러남.
 - [ ] 자료가 서버로 전송되지 않음(네트워크 탭에 업로드 요청 없음).

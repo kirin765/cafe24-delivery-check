@@ -33,7 +33,7 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 |---|---|
 | `/` | 범위 안내 |
 | `/demo` | 합성 자료 데모. 완전/불완전/오래된 자료를 전환 |
-| `/checks/new` | 상품·규칙·근거 CSV 입력, 가져오기 오류·완전성 확인 |
+| `/checks/new` | 상품·규칙·근거 CSV 입력, 상품 export 변환, 가져오기 오류·완전성 확인 |
 | `/checks/[id]` | 몰별 판정·근거·수정 체크리스트·재점검 비교 |
 
 점검 결과는 브라우저 `localStorage`에 저장됩니다. 서버 저장·로그인·Cafe24 조회는 아직 없습니다.
@@ -41,6 +41,16 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 ## CSV 입력 계약
 
 모든 값은 UTF-8 CSV이며 첫 행은 헤더입니다. 파일이 아니라 붙여넣기도 됩니다.
+
+### 상품 export 가져오기 (CSV/XLSX)
+
+`/checks/new`의 "상품 export 가져오기"에서 몰 관리자의 상품 다운로드 파일(`.csv`/`.xlsx`/`.xls`)을
+올리면 열을 자동 추정해 상품 목록 CSV로 변환합니다.
+
+- 머리글 행과 각 열 매핑을 화면에서 확인·수정할 수 있습니다.
+- `mall_id`, `shop_no`, `digital_confirmed`, `sale_active`는 파일에 없으므로 고정값으로 지정합니다.
+- `digital_confirmed`는 이름으로 자동 분류하지 않습니다. 운영자가 확인한 값만 넣습니다.
+- 파일은 브라우저에서만 읽고 서버로 보내지 않습니다.
 
 ### 상품 목록 (`catalog.csv`)
 
