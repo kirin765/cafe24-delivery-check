@@ -91,4 +91,5 @@ env가 없으면 `~/.config/cafe24/credentials.json`(`username`/`password`)을 �
 
 ## 발송 이력
 
-- (발송 시 날짜·수신자·제목 기록)
+- 2026-09-17 `eco_bizops@cafe24corp.com`으로 발송. 본문은 템플릿에서 렌더링했고 비밀번호는 저장소에 남기지 않았다.
+- 발송 전 OAuth 실사용 확인은 완료하지 않았다(테스트몰 실행 확인 필요).
