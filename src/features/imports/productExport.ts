@@ -8,6 +8,10 @@ export interface ProductExportMapping {
   mallId: string;
   shopNo: string;
   digitalConfirmed: TriState;
+  digitalColumn: string;
+  digitalValues: string;
+  digitalMatchValue: TriState;
+  digitalFallbackValue: TriState;
   saleActiveDefault: TriState;
   columns: Record<CatalogFieldKey, string>;
 }
@@ -57,6 +61,10 @@ export const EMPTY_MAPPING: ProductExportMapping = {
   mallId: "",
   shopNo: "1",
   digitalConfirmed: "unknown",
+  digitalColumn: "",
+  digitalValues: "",
+  digitalMatchValue: "yes",
+  digitalFallbackValue: "no",
   saleActiveDefault: "unknown",
   columns: { productNo: "", productName: "", variantCode: "", saleActive: "" },
 };
@@ -65,18 +73,41 @@ function normalize(value: string): string {
   return value.replace(/\s+/g, "").trim();
 }
 
-function pickColumn(header: string[], field: CatalogFieldKey): string {
+function matchingColumns(header: string[], field: CatalogFieldKey): string[] {
   const { candidates, patterns } = FIELD_CANDIDATES[field];
+  const exact: string[] = [];
   for (const candidate of candidates) {
     const target = normalize(candidate);
     const found = header.find((name) => normalize(name) === target);
-    if (found) return found;
+    if (found) exact.push(found);
   }
-  for (const pattern of patterns) {
-    const found = header.find((name) => pattern.test(name));
-    if (found) return found;
+  const fuzzy: string[] = [];
+  for (const name of header) {
+    if (exact.includes(name)) continue;
+    if (patterns.some((pattern) => pattern.test(name))) fuzzy.push(name);
   }
-  return "";
+  return [...exact, ...fuzzy];
+}
+
+function pickColumn(header: string[], field: CatalogFieldKey, dataRows: string[][] = []): string {
+  const matches = matchingColumns(header, field);
+  if (matches.length === 0) return "";
+  if (dataRows.length === 0) return matches[0];
+
+  let best = matches[0];
+  let bestFilled = -1;
+  for (const name of matches) {
+    const index = header.indexOf(name);
+    const filled = dataRows.reduce(
+      (count, row) => count + ((row[index] ?? "").trim() !== "" ? 1 : 0),
+      0,
+    );
+    if (filled > bestFilled) {
+      bestFilled = filled;
+      best = name;
+    }
+  }
+  return best;
 }
 
 export function detectHeaderRow(rows: string[][]): number {
@@ -95,14 +126,14 @@ export function detectHeaderRow(rows: string[][]): number {
   return bestScore >= 2 ? bestIndex : 0;
 }
 
-export function autoDetectMapping(header: string[]): ProductExportMapping {
+export function autoDetectMapping(header: string[], dataRows: string[][] = []): ProductExportMapping {
   return {
     ...EMPTY_MAPPING,
     columns: {
-      productNo: pickColumn(header, "productNo"),
-      productName: pickColumn(header, "productName"),
-      variantCode: pickColumn(header, "variantCode"),
-      saleActive: pickColumn(header, "saleActive"),
+      productNo: pickColumn(header, "productNo", dataRows),
+      productName: pickColumn(header, "productName", dataRows),
+      variantCode: pickColumn(header, "variantCode", dataRows),
+      saleActive: pickColumn(header, "saleActive", dataRows),
     },
   };
 }
@@ -172,7 +203,21 @@ export function buildCatalogFromExport(
   const productNameIndex = index(mapping.columns.productName);
   const variantIndex = index(mapping.columns.variantCode);
   const saleIndex = index(mapping.columns.saleActive);
+  const digitalIndex = index(mapping.digitalColumn);
   const cell = (row: string[], column: number) => (column >= 0 ? (row[column] ?? "").trim() : "");
+
+  const digitalValues = mapping.digitalValues
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value !== "");
+  if (digitalIndex >= 0 && digitalValues.length === 0) {
+    issues.push("디지털 판정 값이 비어 있어 digital_confirmed 고정값을 사용합니다.");
+  }
+  const digitalFor = (row: string[]): TriState => {
+    if (digitalIndex < 0 || digitalValues.length === 0) return mapping.digitalConfirmed;
+    const value = cell(row, digitalIndex).toLowerCase();
+    return digitalValues.includes(value) ? mapping.digitalMatchValue : mapping.digitalFallbackValue;
+  };
 
   const entries: CatalogEntry[] = [];
   const seen = new Set<string>();
@@ -201,7 +246,7 @@ export function buildCatalogFromExport(
       productNo,
       variantCode: variantCode === "" ? undefined : variantCode,
       productName,
-      digitalConfirmed: mapping.digitalConfirmed,
+      digitalConfirmed: digitalFor(row),
       saleActive: rawSale === "" ? mapping.saleActiveDefault : textToTriState(rawSale),
     });
   }

@@ -47,9 +47,11 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 `/checks/new`의 "상품 export 가져오기"에서 몰 관리자의 상품 다운로드 파일(`.csv`/`.xlsx`/`.xls`)을
 올리면 열을 자동 추정해 상품 목록 CSV로 변환합니다.
 
-- 머리글 행과 각 열 매핑을 화면에서 확인·수정할 수 있습니다.
-- `mall_id`, `shop_no`, `digital_confirmed`, `sale_active`는 파일에 없으므로 고정값으로 지정합니다.
-- `digital_confirmed`는 이름으로 자동 분류하지 않습니다. 운영자가 확인한 값만 넣습니다.
+- 머리글 행과 각 열 매핑을 화면에서 확인·수정할 수 있습니다. 값이 채워진 열을 우선하므로 빈 식별자 열
+  (예: 스마트스토어 `그룹상품번호`)을 잘못 고르지 않습니다.
+- `mall_id`, `shop_no`, `sale_active`는 파일에 없으면 고정값으로 지정합니다.
+- `digital_confirmed`는 상품명으로 자동 분류하지 않습니다. 고정값으로 주거나, 운영자가 확인한
+  분류 열과 값(예: `세분류 = eBook`)을 "디지털 판정 열"로 직접 지정합니다.
 - 파일은 브라우저에서만 읽고 서버로 보내지 않습니다.
 
 ### 상품 목록 (`catalog.csv`)

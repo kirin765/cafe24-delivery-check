@@ -46,9 +46,9 @@ test("홈 화면이 범위 안내와 함께 로드된다", async () => {
 test("상품 export CSV를 업로드해 상품 목록으로 변환한다", async () => {
   await page.goto(`${BASE_URL}/checks/new`);
   const csv = [
-    "상품코드,자체 상품코드,진열상태,판매상태,상품분류 번호,상품명,판매가",
-    'P0000101,"","Y","Y","29","샘플 타월","5000.00"',
-    'P0000102,"","Y","N","29","샘플 컵","3000.00"',
+    "상품코드,자체 상품코드,진열상태,판매상태,상품분류 번호,상품명,판매가,세분류",
+    'P0000101,"","Y","Y","29","샘플 타월","5000.00","eBook"',
+    'P0000102,"","Y","N","29","샘플 컵","3000.00","실물"',
   ].join("\n");
   await page.getByTestId("product-export-file").setInputFiles({
     name: "cafe24-product-export.csv",
@@ -57,13 +57,14 @@ test("상품 export CSV를 업로드해 상품 목록으로 변환한다", async
   });
   await page.getByTestId("export-mall-id").waitFor();
   await page.getByTestId("export-mall-id").fill("onnurimun");
+  await page.getByTestId("export-digital-column").selectOption("세분류");
+  await page.getByTestId("export-digital-values").fill("eBook");
   await page.getByTestId("apply-export").click();
   await page.getByTestId("export-applied").waitFor();
 
   const catalog = await page.getByTestId("csv-input-catalog").inputValue();
-  assert.match(catalog, /onnurimun/);
-  assert.match(catalog, /P0000101/);
-  assert.match(catalog, /P0000102/);
+  assert.match(catalog, /onnurimun,1,P0000101,,샘플 타월,yes,yes/);
+  assert.match(catalog, /onnurimun,1,P0000102,,샘플 컵,no,no/);
   assert.match(catalog, /digital_confirmed/);
 });
 

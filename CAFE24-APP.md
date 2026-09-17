@@ -11,7 +11,7 @@
 
 | 필드 | 입력값 |
 |---|---|
-| App URL | `https://cafe24-delivery-check.vercel.app/` (launch 구현 시 `/api/cafe24/launch`) |
+| App URL | `https://cafe24-delivery-check.vercel.app/checks/new` (launch 구현 시 `/api/cafe24/launch`) |
 | 표시 방식 | 새 창 열기(기본값) |
 | Redirect URI(s) | `https://cafe24-delivery-check.vercel.app/api/cafe24/oauth/callback` |
 | 유형 | Web application (Authorization Code) |

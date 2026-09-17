@@ -44,7 +44,7 @@ export function ProductExportImport({ onApply }: { onApply: (csv: string) => voi
       const index = detectHeaderRow(parsed);
       setRows(parsed);
       setHeaderIndex(index);
-      setMapping(autoDetectMapping(parsed[index] ?? []));
+      setMapping(autoDetectMapping(parsed[index] ?? [], parsed.slice(index + 1)));
       setFileName(file.name);
     } catch (cause) {
       setRows([]);
@@ -57,15 +57,9 @@ export function ProductExportImport({ onApply }: { onApply: (csv: string) => voi
     setHeaderIndex(index);
     setApplied(null);
     setMapping((previous) => {
-      const detected = autoDetectMapping(rows[index] ?? []);
+      const detected = autoDetectMapping(rows[index] ?? [], rows.slice(index + 1));
       if (!previous) return detected;
-      return {
-        ...detected,
-        mallId: previous.mallId,
-        shopNo: previous.shopNo,
-        digitalConfirmed: previous.digitalConfirmed,
-        saleActiveDefault: previous.saleActiveDefault,
-      };
+      return { ...previous, columns: detected.columns };
     });
   };
 
@@ -149,7 +143,22 @@ export function ProductExportImport({ onApply }: { onApply: (csv: string) => voi
               />
             </label>
             <label className="text-xs text-slate-600">
-              digital_confirmed (운영자 확인)
+              sale_active 기본값 (상태 열 미선택 시)
+              <select
+                data-testid="export-sale-default"
+                value={mapping.saleActiveDefault}
+                onChange={(event) => updateConstant("saleActiveDefault", event.target.value as TriState)}
+                className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              >
+                {TRI_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              digital_confirmed 고정값 (판정 열 미선택 시)
               <select
                 data-testid="export-digital"
                 value={mapping.digitalConfirmed}
@@ -163,13 +172,59 @@ export function ProductExportImport({ onApply }: { onApply: (csv: string) => voi
                 ))}
               </select>
             </label>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-xs text-slate-600">
-              sale_active 기본값 (상태 열 미선택 시)
+              디지털 판정 열 (선택)
               <select
-                data-testid="export-sale-default"
-                value={mapping.saleActiveDefault}
-                onChange={(event) => updateConstant("saleActiveDefault", event.target.value as TriState)}
+                data-testid="export-digital-column"
+                value={mapping.digitalColumn}
+                onChange={(event) => updateConstant("digitalColumn", event.target.value)}
                 className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm"
+              >
+                <option value="">(사용 안 함)</option>
+                {header.map((name, index) => (
+                  <option key={`${name}-${index}`} value={name}>
+                    {name || `(열 ${index + 1})`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              판정 값 (쉼표로 여러 개, 예: eBook,전자책)
+              <input
+                data-testid="export-digital-values"
+                value={mapping.digitalValues}
+                onChange={(event) => updateConstant("digitalValues", event.target.value)}
+                disabled={mapping.digitalColumn === ""}
+                className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100"
+              />
+            </label>
+            <label className="text-xs text-slate-600">
+              일치 시 값
+              <select
+                data-testid="export-digital-match"
+                value={mapping.digitalMatchValue}
+                onChange={(event) => updateConstant("digitalMatchValue", event.target.value as TriState)}
+                disabled={mapping.digitalColumn === ""}
+                className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100"
+              >
+                {TRI_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-xs text-slate-600">
+              그 외 값
+              <select
+                data-testid="export-digital-fallback"
+                value={mapping.digitalFallbackValue}
+                onChange={(event) => updateConstant("digitalFallbackValue", event.target.value as TriState)}
+                disabled={mapping.digitalColumn === ""}
+                className="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm disabled:bg-slate-100"
               >
                 {TRI_OPTIONS.map((value) => (
                   <option key={value} value={value}>
@@ -202,8 +257,8 @@ export function ProductExportImport({ onApply }: { onApply: (csv: string) => voi
           </div>
 
           <p className="text-xs text-amber-700">
-            digital_confirmed는 이름으로 자동 분류하지 않습니다. 운영자가 디지털 전달 대상임을 확인한
-            경우에만 값을 바꾸세요.
+            digital_confirmed는 상품명으로 자동 분류하지 않습니다. 고정값으로 주거나, &apos;디지털 판정
+            열&apos;에 운영자가 확인한 분류 열과 값(예: 세분류 = eBook)을 직접 지정하세요.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

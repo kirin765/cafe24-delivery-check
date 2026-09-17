@@ -23,6 +23,10 @@ function mapping(overrides: Partial<ProductExportMapping> = {}): ProductExportMa
     mallId: "onnurimun",
     shopNo: "1",
     digitalConfirmed: "unknown",
+    digitalColumn: "",
+    digitalValues: "",
+    digitalMatchValue: "yes",
+    digitalFallbackValue: "no",
     saleActiveDefault: "unknown",
     columns: {
       productNo: "상품코드",
@@ -103,6 +107,69 @@ describe("buildCatalogFromExport", () => {
     expect(result.entries).toHaveLength(0);
     expect(result.csv).toBe("");
     expect(result.issues.join(" ")).toContain("mall_id");
+  });
+});
+
+describe("스마트스토어 상품 export", () => {
+  const header = [
+    "그룹상품번호",
+    "상품번호(스마트스토어)",
+    "판매자상품코드",
+    "상품명",
+    "판매상태",
+    "전시상태",
+  ];
+  const rows = [
+    header,
+    ["", "13452097975", "", "무자본으로 시작하는 배달 부업", "판매중", "전시중"],
+    ["", "13447575227", "", "스마트스토어 부업 시작 가이드", "판매중", "전시중"],
+  ];
+
+  it("값이 빈 그룹상품번호 대신 실제 상품번호 열을 고른다", () => {
+    const detected = autoDetectMapping(header, rows.slice(1));
+    expect(detected.columns.productNo).toBe("상품번호(스마트스토어)");
+    expect(detected.columns.productName).toBe("상품명");
+    expect(detected.columns.saleActive).toBe("판매상태");
+  });
+
+  it("상품 목록 CSV로 변환한다", () => {
+    const detected = autoDetectMapping(header, rows.slice(1));
+    const result = buildCatalogFromExport(rows, 0, {
+      ...detected,
+      mallId: "smartstore",
+      shopNo: "1",
+      digitalConfirmed: "unknown",
+    });
+    expect(result.entries.map((entry) => entry.productNo)).toEqual([
+      "13452097975",
+      "13447575227",
+    ]);
+    expect(result.entries[0].saleActive).toBe("yes");
+    expect(result.skipped).toBe(0);
+  });
+});
+
+describe("디지털 판정 열", () => {
+  const rows = [
+    ["상품코드", "상품명", "판매상태", "세분류"],
+    ["D1", "전자책 A", "판매중", "eBook"],
+    ["P1", "강아지 빗", "판매중", "브러시/빗"],
+  ];
+
+  it("지정한 열과 값으로 행마다 digital_confirmed를 나눈다", () => {
+    const result = buildCatalogFromExport(rows, 0, mapping({
+      digitalColumn: "세분류",
+      digitalValues: "eBook, 전자책",
+      digitalMatchValue: "yes",
+      digitalFallbackValue: "no",
+    }));
+    expect(result.entries[0].digitalConfirmed).toBe("yes");
+    expect(result.entries[1].digitalConfirmed).toBe("no");
+  });
+
+  it("판정 열이 없으면 고정값을 쓴다", () => {
+    const result = buildCatalogFromExport(rows, 0, mapping({ digitalConfirmed: "yes" }));
+    expect(result.entries.every((entry) => entry.digitalConfirmed === "yes")).toBe(true);
   });
 });
 
