@@ -25,20 +25,57 @@ export const EXPORT_FIELD_LABELS: Record<CatalogFieldKey, string> = {
 
 const FIELD_CANDIDATES: Record<CatalogFieldKey, { candidates: string[]; patterns: RegExp[] }> = {
   productNo: {
-    candidates: ["상품번호", "상품코드", "자체상품코드", "품번"],
-    patterns: [/상품\s*번호/, /상품\s*코드/, /product_?(no|code)/i, /품번/],
+    candidates: [
+      "상품번호",
+      "상품코드",
+      "자체상품코드",
+      "품번",
+      "등록상품ID",
+      "상품ID",
+      "SKU",
+      "Handle",
+      "item_number",
+      "sellerProductId",
+      "seller_unique_item_id",
+    ],
+    patterns: [
+      /상품\s*번호/,
+      /상품\s*코드/,
+      /상품\s*id/i,
+      /등록\s*상품/,
+      /product_?(no|code|id)/i,
+      /seller_?(unique_)?item/i,
+      /item_?(number|id)/i,
+      /^handle$/i,
+      /handle/i,
+      /^sku$/i,
+      /품번/,
+    ],
   },
   productName: {
-    candidates: ["상품명", "품명"],
-    patterns: [/상품명/, /품명/, /product_?name/i, /^name$/i],
+    candidates: ["상품명", "품명", "노출상품명", "Title", "Name", "item_name"],
+    patterns: [/상품명/, /품명/, /product_?name/i, /item_?name/i, /^title$/i, /^name$/i],
   },
   variantCode: {
-    candidates: ["옵션코드", "품목코드"],
-    patterns: [/옵션\s*코드/, /품목\s*코드/, /variant_?code/i, /option_?code/i],
+    candidates: ["옵션코드", "품목코드", "옵션ID", "Variant SKU"],
+    patterns: [
+      /옵션\s*코드/,
+      /품목\s*코드/,
+      /옵션\s*id/i,
+      /option\d*\s*value/i,
+      /variant_?sku/i,
+    ],
   },
   saleActive: {
-    candidates: ["판매상태", "진열상태"],
-    patterns: [/판매\s*상태/, /진열\s*상태/, /selling|display|sale_?active/i],
+    candidates: ["판매상태", "진열상태", "전시상태", "Status", "Published"],
+    patterns: [
+      /판매\s*상태/,
+      /진열\s*상태/,
+      /전시\s*상태/,
+      /^status$/i,
+      /^published$/i,
+      /selling|display|sale_?active/i,
+    ],
   },
 };
 
@@ -48,6 +85,7 @@ const HEADER_HINTS: RegExp[] = [
   /명/,
   /판매/,
   /진열/,
+  /전시/,
   /옵션/,
   /품목/,
   /product/i,
@@ -55,6 +93,9 @@ const HEADER_HINTS: RegExp[] = [
   /code/i,
   /price/i,
   /status/i,
+  /sku/i,
+  /handle/i,
+  /item/i,
 ];
 
 export const EMPTY_MAPPING: ProductExportMapping = {
@@ -115,9 +156,13 @@ export function detectHeaderRow(rows: string[][]): number {
   let bestScore = -1;
   const limit = Math.min(rows.length, 10);
   for (let index = 0; index < limit; index += 1) {
-    const score = rows[index].filter(
+    const row = rows[index];
+    const dataRows = rows.slice(index + 1);
+    let score = row.filter(
       (cell) => cell.trim() !== "" && HEADER_HINTS.some((pattern) => pattern.test(cell)),
     ).length;
+    if (pickColumn(row, "productNo", dataRows) !== "") score += 3;
+    if (pickColumn(row, "productName", dataRows) !== "") score += 3;
     if (score > bestScore) {
       bestScore = score;
       bestIndex = index;
@@ -147,9 +192,15 @@ const YES_VALUES = new Set([
   "판매중",
   "진열",
   "진열중",
+  "전시",
+  "전시중",
   "승인",
   "정상",
+  "공개",
+  "게시",
   "active",
+  "published",
+  "publish",
   "on",
 ]);
 const NO_VALUES = new Set([
@@ -157,11 +208,22 @@ const NO_VALUES = new Set([
   "no",
   "false",
   "0",
+  "-1",
+  "2",
   "판매안함",
   "판매중지",
+  "판매대기",
   "미판매",
   "진열안함",
+  "전시중지",
+  "전시안함",
+  "미전시",
+  "비공개",
   "중지",
+  "draft",
+  "archived",
+  "private",
+  "pending",
   "inactive",
   "off",
 ]);

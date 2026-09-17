@@ -35,6 +35,17 @@ describe("readTabularRows", () => {
     ]);
   });
 
+  it("EUC-KR/CP949 CSV를 해독한다", () => {
+    const bytes = new Uint8Array([
+      187, 243, 199, 176, 196, 218, 181, 229, 44, 187, 243, 199, 176, 184, 237, 10, 80, 49, 44,
+      187, 249, 199, 195, 10,
+    ]).buffer;
+    expect(readTabularRows("cp949.csv", bytes)).toEqual([
+      ["상품코드", "상품명"],
+      ["P1", "샘플"],
+    ]);
+  });
+
   it("빈 입력은 빈 배열을 돌려준다", () => {
     expect(readTabularRows("empty.csv", textBytes(""))).toEqual([]);
   });

@@ -49,6 +49,9 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 
 - 머리글 행과 각 열 매핑을 화면에서 확인·수정할 수 있습니다. 값이 채워진 열을 우선하므로 빈 식별자 열
   (예: 스마트스토어 `그룹상품번호`)을 잘못 고르지 않습니다.
+- Cafe24·스마트스토어·쿠팡·Qoo10·Shopify·WooCommerce 등 주요 양식의 식별자(`상품코드`/`SKU`/`Handle`/
+  `item_number`), 이름, 상태 열을 자동 인식합니다. 안내 행이 있는 양식도 머리글을 찾습니다.
+- UTF-8(BOM 포함)과 EUC-KR/CP949 CSV를 읽습니다.
 - `mall_id`, `shop_no`, `sale_active`는 파일에 없으면 고정값으로 지정합니다.
 - `digital_confirmed`는 상품명으로 자동 분류하지 않습니다. 고정값으로 주거나, 운영자가 확인한
   분류 열과 값(예: `세분류 = eBook`)을 "디지털 판정 열"로 직접 지정합니다.

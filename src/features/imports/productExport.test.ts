@@ -173,12 +173,89 @@ describe("디지털 판정 열", () => {
   });
 });
 
+describe("다른 플랫폼 양식", () => {
+  it("Shopify 헤더(Handle/Title/Variant SKU/Status)를 인식한다", () => {
+    const header = ["Handle", "Title", "Body (HTML)", "Vendor", "Status", "Variant SKU"];
+    const rows = [
+      header,
+      ["black-sunglasses", "Black Sunglasses", "", "Acme", "active", "BS-001"],
+    ];
+    const detected = autoDetectMapping(header, rows.slice(1));
+    expect(detected.columns).toMatchObject({
+      productNo: "Handle",
+      productName: "Title",
+      saleActive: "Status",
+      variantCode: "Variant SKU",
+    });
+    const result = buildCatalogFromExport(rows, 0, {
+      ...detected,
+      mallId: "shopify",
+      shopNo: "1",
+      digitalConfirmed: "unknown",
+    });
+    expect(result.entries[0]).toMatchObject({
+      productNo: "black-sunglasses",
+      productName: "Black Sunglasses",
+      variantCode: "BS-001",
+      saleActive: "yes",
+    });
+  });
+
+  it("WooCommerce 헤더(SKU/Name/Published)를 인식한다", () => {
+    const header = ["Type", "SKU", "Name", "Published", "Regular price"];
+    const rows = [header, ["simple", "SH99786", "Sample Tee", "1", "12000"]];
+    const detected = autoDetectMapping(header, rows.slice(1));
+    expect(detected.columns).toMatchObject({
+      productNo: "SKU",
+      productName: "Name",
+      saleActive: "Published",
+    });
+  });
+
+  it("쿠팡 헤더(등록상품ID/노출상품명/옵션ID)를 인식한다", () => {
+    const header = ["등록상품ID", "노출상품명", "판매상태", "옵션ID"];
+    const rows = [
+      header,
+      ["90996608327", "무자본 배달 부업", "판매중", "3039378"],
+    ];
+    const detected = autoDetectMapping(header, rows.slice(1));
+    expect(detected.columns).toMatchObject({
+      productNo: "등록상품ID",
+      productName: "노출상품명",
+      saleActive: "판매상태",
+      variantCode: "옵션ID",
+    });
+  });
+
+  it("Qoo10처럼 안내 행 뒤에 머리글이 오면 머리글 행을 찾는다", () => {
+    const rows = [
+      ["상품정보 등록/수정 양식", "2~4행은 설명입니다", ""],
+      ["item_number", "seller_unique_item_id", "item_name", "Status"],
+      ["123456789", "SELLER-1", "Sample Item", "active"],
+    ];
+    expect(detectHeaderRow(rows)).toBe(1);
+    const detected = autoDetectMapping(rows[1], rows.slice(2));
+    expect(detected.columns).toMatchObject({
+      productNo: "item_number",
+      productName: "item_name",
+      saleActive: "Status",
+    });
+  });
+});
+
 describe("textToTriState", () => {
   it("Y/N과 한글 상태를 해석한다", () => {
     expect(textToTriState("Y")).toBe("yes");
     expect(textToTriState("n")).toBe("no");
     expect(textToTriState("판매중")).toBe("yes");
     expect(textToTriState("판매중지")).toBe("no");
+    expect(textToTriState("전시중")).toBe("yes");
+    expect(textToTriState("전시중지")).toBe("no");
+    expect(textToTriState("active")).toBe("yes");
+    expect(textToTriState("published")).toBe("yes");
+    expect(textToTriState("draft")).toBe("no");
+    expect(textToTriState("archived")).toBe("no");
+    expect(textToTriState("-1")).toBe("no");
     expect(textToTriState("")).toBe("unknown");
     expect(textToTriState("기타")).toBe("unknown");
   });

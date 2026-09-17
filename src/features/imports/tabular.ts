@@ -22,6 +22,22 @@ function toTable(rows: unknown[][]): string[][] {
   );
 }
 
+export function decodeText(bytes: ArrayBuffer): string {
+  const view = new Uint8Array(bytes);
+  if (view[0] === 0xef && view[1] === 0xbb && view[2] === 0xbf) {
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    try {
+      return new TextDecoder("euc-kr").decode(bytes);
+    } catch {
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+  }
+}
+
 export function readTabularRows(name: string, bytes: ArrayBuffer): string[][] {
   if (looksLikeSpreadsheet(name, bytes)) {
     const workbook = XLSX.read(bytes, { type: "array", dense: false });
@@ -36,8 +52,7 @@ export function readTabularRows(name: string, bytes: ArrayBuffer): string[][] {
     });
     return toTable(rows as unknown[][]);
   }
-  const text = new TextDecoder("utf-8").decode(bytes);
-  return parseCsv(text).filter((row) => row.some((cell) => cell.trim() !== ""));
+  return parseCsv(decodeText(bytes)).filter((row) => row.some((cell) => cell.trim() !== ""));
 }
 
 export async function readTabularFile(file: File): Promise<string[][]> {
