@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>디지털 발송 점검 아이콘 · 배너</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Noto Sans CJK KR", "Apple SD Gothic Neo", sans-serif; }
+
+  #icon {
+    width: 512px; height: 512px;
+    background: linear-gradient(160deg, #0f172a 0%, #1e3a8a 55%, #1d4ed8 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #icon .card {
+    width: 300px; height: 320px; background: #fff; border-radius: 46px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.35);
+    padding: 46px 40px; position: relative;
+  }
+  #icon .row { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+  #icon .row:last-child { margin-bottom: 0; }
+  #icon .dot {
+    width: 40px; height: 40px; border-radius: 12px; flex: 0 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: #fff;
+  }
+  #icon .ok { background: #16a34a; }
+  #icon .warn { background: #f59e0b; }
+  #icon .bar { height: 18px; border-radius: 999px; background: #e2e8f0; flex: 1; }
+  #icon .bar.short { flex: 0 0 92px; }
+  #icon .badge {
+    position: absolute; right: -22px; bottom: -22px; width: 104px; height: 104px;
+    border-radius: 50%; background: #2563eb; color: #fff; border: 9px solid #fff;
+    font-size: 56px; font-weight: 800; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 14px 34px rgba(0,0,0,.28);
+  }
+
+  #banner {
+    width: 740px; height: 416px;
+    background: linear-gradient(160deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
+    color: #fff; padding: 50px 56px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  #banner .badge {
+    display: inline-block; background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.3); border-radius: 999px;
+    padding: 7px 16px; font-size: 15px; letter-spacing: .02em; align-self: flex-start;
+  }
+  #banner h1 { font-size: 36px; font-weight: 800; line-height: 1.34; margin-top: 20px; }
+  #banner h1 em { font-style: normal; color: #bfdbfe; }
+  #banner p { font-size: 17px; color: #cbd9f7; margin-top: 12px; line-height: 1.6; }
+  #banner .flow { display: flex; align-items: center; gap: 11px; margin-top: 28px; }
+  #banner .flow .card {
+    background: #fff; color: #1e3a8a; border-radius: 12px; padding: 13px 15px;
+    font-size: 14px; font-weight: 700; box-shadow: 0 12px 30px rgba(0,0,0,.25); white-space: nowrap;
+  }
+  #banner .flow .card small { display: block; font-weight: 500; color: #64748b; font-size: 11px; margin-top: 3px; }
+  #banner .flow .arr { font-size: 21px; color: #bfdbfe; }
+</style>
+</head>
+<body>
+
+<div id="icon">
+  <div class="card">
+    <div class="row"><span class="dot ok">✓</span><span class="bar"></span></div>
+    <div class="row"><span class="dot ok">✓</span><span class="bar short"></span></div>
+    <div class="row"><span class="dot warn">!</span><span class="bar"></span></div>
+    <div class="badge">✓</div>
+  </div>
+</div>
+
+<div id="banner">
+  <span class="badge">카페24 앱 · 디지털 상품 발송 설정 점검</span>
+  <h1>디지털 상품,<br><em>발송 규칙 없이</em> 등록돼 있지 않나요?</h1>
+  <p>몰 상품 목록과 발송 규칙을 대조해 규칙이 없거나 꺼진 상품을 찾아냅니다.</p>
+  <div class="flow">
+    <div class="card">상품 목록<small>Cafe24 · export</small></div>
+    <div class="arr">→</div>
+    <div class="card">규칙 대조<small>누락 · 비활성</small></div>
+    <div class="arr">→</div>
+    <div class="card">체크리스트<small>수정 · 재점검</small></div>
+  </div>
+</div>
+
+</body>
+</html>

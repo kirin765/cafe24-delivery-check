@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>디지털 상품 발송 설정 점검 — 대표 이미지</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Noto Sans CJK KR", "Apple SD Gothic Neo", sans-serif;
+    width: 1200px; height: 675px; overflow: hidden;
+    background: linear-gradient(150deg, #0f172a 0%, #1e3a8a 58%, #1d4ed8 100%);
+    color: #fff; display: flex; align-items: center; gap: 60px; padding: 0 76px;
+  }
+  .left { flex: 1 1 auto; }
+  .badge {
+    display: inline-block; background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.3); border-radius: 999px;
+    padding: 8px 18px; font-size: 17px; letter-spacing: .02em;
+  }
+  h1 { font-size: 50px; font-weight: 800; line-height: 1.3; margin-top: 24px; }
+  h1 em { font-style: normal; color: #bfdbfe; }
+  p { font-size: 20px; color: #cbd9f7; margin-top: 18px; line-height: 1.6; }
+  .mock {
+    flex: 0 0 430px; background: #fff; border-radius: 22px; padding: 26px 24px;
+    box-shadow: 0 30px 70px rgba(0,0,0,.4);
+  }
+  .mock h2 { color: #0f172a; font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+  .mock .row { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-radius: 12px; margin-bottom: 10px; }
+  .mock .row:last-child { margin-bottom: 0; }
+  .mock .name { font-size: 15px; font-weight: 700; color: #0f172a; }
+  .mock .tag { font-size: 12px; font-weight: 800; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+  .ok { background: #dcfce7; } .ok .tag { background: #16a34a; color: #fff; }
+  .no { background: #fee2e2; } .no .tag { background: #dc2626; color: #fff; }
+  .un { background: #e2e8f0; } .un .tag { background: #64748b; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="left">
+    <span class="badge">카페24 앱 · 디지털 상품 발송 설정 점검</span>
+    <h1>발송 규칙이 빠진<br>디지털 상품,<br><em>한 번에 찾습니다</em></h1>
+    <p>몰 상품 목록과 발송 규칙을 대조해 확인이 필요한 상품을 표시합니다.</p>
+  </div>
+  <div class="mock">
+    <h2>점검 결과</h2>
+    <div class="row ok"><span class="name">전자책 A</span><span class="tag">설정 확인</span></div>
+    <div class="row no"><span class="name">전자책 B</span><span class="tag">규칙 없음</span></div>
+    <div class="row un"><span class="name">강의 C</span><span class="tag">판정 불가</span></div>
+  </div>
+</body>
+</html>

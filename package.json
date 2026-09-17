@@ -14,6 +14,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node scripts/run-e2e.mjs",
+    "store-assets": "node scripts/render-store-assets.mjs",
+    "store-assets:icons": "node store-assets/render-icon-banner.mjs",
+    "store-assets:detail": "node store-assets/render-detail-images.mjs",
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "dependencies": {
