@@ -17,6 +17,7 @@
     "store-assets": "node scripts/render-store-assets.mjs",
     "store-assets:icons": "node store-assets/render-icon-banner.mjs",
     "store-assets:detail": "node store-assets/render-detail-images.mjs",
+    "review-email": "node scripts/render-review-email.mjs",
     "verify": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "dependencies": {
