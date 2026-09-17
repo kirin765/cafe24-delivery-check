@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IssueList } from "@/app/components/IssueList";
+import { Cafe24Import } from "./Cafe24Import";
 import { ProductExportImport } from "./ProductExportImport";
 import { evaluateReadiness, evidenceGaps } from "@/features/checks/evaluateReadiness";
 import { newRunId, saveRun } from "@/features/checks/store";
@@ -130,6 +131,8 @@ export default function NewCheckPage() {
           />
         </label>
       </section>
+
+      <Cafe24Import onApply={setCatalogText} />
 
       <ProductExportImport onApply={setCatalogText} />
 

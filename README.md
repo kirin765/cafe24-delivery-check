@@ -33,7 +33,7 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 |---|---|
 | `/` | 범위 안내 |
 | `/demo` | 합성 자료 데모. 완전/불완전/오래된 자료를 전환 |
-| `/checks/new` | 상품·규칙·근거 CSV 입력, 상품 export 변환, 가져오기 오류·완전성 확인 |
+| `/checks/new` | 상품·규칙·근거 CSV 입력, Cafe24 불러오기, 상품 export 변환, 가져오기 오류·완전성 확인 |
 | `/checks/[id]` | 몰별 판정·근거·수정 체크리스트·규칙 확인 서식·재점검 비교 |
 
 점검 결과는 브라우저 `localStorage`에 저장됩니다. 서버 저장·로그인·Cafe24 조회는 아직 없습니다.
@@ -109,6 +109,21 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 | `collected_at` | 아니오 | 자료 수집시각 |
 | `confirmed_by` | 아니오 | 확인자 |
 | `source` | 아니오 | 출처 |
+
+## Cafe24 연동 (선택)
+
+상품 목록을 자동으로 가져오려면 Cafe24 앱 연동을 켭니다. 설정하지 않아도 위의 export 업로드로 모든 기능을
+쓸 수 있습니다.
+
+- `CAFE24_CLIENT_ID`, `CAFE24_CLIENT_SECRET`, `CAFE24_REDIRECT_URI`, `TOKEN_ENCRYPTION_KEY` 설정
+  (`.env.example` 참고). scope는 최소 권한 `mall.read_product`.
+- Cafe24 앱 등록: App URL `/api/cafe24/launch`, Redirect URI `/api/cafe24/oauth/callback`
+  (`CAFE24-APP.md`).
+- 흐름: 관리자 [앱] 실행 → `launch`(hmac·timestamp 검증) → OAuth 동의 → `callback`(코드→토큰 교환) →
+  `/checks/new`에서 `Cafe24 상품 불러오기`.
+- 토큰은 서버 DB에 저장하지 않고, 암호화된 httpOnly 쿠키로만 보관합니다(tenant=몰 단위). 만료 시
+  `refresh_token`으로 갱신합니다.
+- 설정이 없으면 "Cafe24에 연결되어 있지 않습니다"만 표시하고, 자동 점검이 되는 것처럼 보이지 않습니다.
 
 ## 판정
 

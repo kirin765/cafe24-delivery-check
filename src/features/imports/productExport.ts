@@ -185,6 +185,7 @@ export function autoDetectMapping(header: string[], dataRows: string[][] = []): 
 
 const YES_VALUES = new Set([
   "y",
+  "t",
   "yes",
   "true",
   "1",
@@ -205,6 +206,7 @@ const YES_VALUES = new Set([
 ]);
 const NO_VALUES = new Set([
   "n",
+  "f",
   "no",
   "false",
   "0",

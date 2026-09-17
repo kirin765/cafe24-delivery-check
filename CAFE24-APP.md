@@ -1,8 +1,8 @@
-# Cafe24 앱 등록 입력 시트 (등록 보류)
+# Cafe24 앱 등록 입력 시트
 
-- 상태: **등록 보류** — `plan.md` §6(연동 전 확인)과 §2(중단 조건)에 따라, 1차 수동 CSV 감사의 가치를
-  먼저 검증한다. 현재 배포본에는 `launch`/`oauth/callback` 엔드포인트가 없어 지금 등록하면 Redirect
-  URI가 404가 된다.
+- 상태: **연동 구현 완료(등록 가능)** — `/api/cafe24/launch`(hmac·timestamp 검증), `/api/cafe24/oauth/callback`
+  (코드→토큰 교환·암호화 쿠키 저장), `/api/cafe24/products`(최소 권한 상품 조회) 구현.
+  등록 전 Vercel 환경변수(`CAFE24_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` 등)를 설정한다.
 - Client ID: `ICIi7fVaDyEARcfvSbom4B` (2026-09-16 생성, 공개 식별자)
 - Client Secret: 이 문서에 저장하지 않음. 채팅에 노출됐으므로 개발자센터에서 **재발급 필요**.
 - 참고 관례: `../cafe24-return-photo/store-assets/form-fill.md`
@@ -11,7 +11,7 @@
 
 | 필드 | 입력값 |
 |---|---|
-| App URL | `https://cafe24-delivery-check.vercel.app/checks/new` (launch 구현 시 `/api/cafe24/launch`) |
+| App URL | `https://cafe24-delivery-check.vercel.app/api/cafe24/launch` |
 | 표시 방식 | 새 창 열기(기본값) |
 | Redirect URI(s) | `https://cafe24-delivery-check.vercel.app/api/cafe24/oauth/callback` |
 | 유형 | Web application (Authorization Code) |
@@ -32,11 +32,21 @@
 
 ## 등록 전에 필요한 구현 (plan §6)
 
-- [ ] `/api/cafe24/launch` — 서명·timestamp 검증
-- [ ] `/api/cafe24/oauth/callback` — 인증코드→토큰 교환, 앱 전용 토큰 암호화 저장, tenant 격리
-- [ ] 최소 scope 환경변수 일치(`CAFE24_CLIENT_ID` / `CAFE24_CLIENT_SECRET` / `CAFE24_SCOPES`)
-- [ ] 갱신 토큰 재발급, 전체 query 보존
-- [ ] 상품 조회가 디지털 상품 식별에 무엇을 주는지 확인 (이름 기반 자동 분류 금지, plan §4)
+- [x] `/api/cafe24/launch` — 서명·timestamp 검증
+- [x] `/api/cafe24/oauth/callback` — 인증코드→토큰 교환, 토큰 암호화 저장(AES-GCM httpOnly 쿠키), tenant 격리
+- [x] 최소 scope 환경변수 일치(`CAFE24_CLIENT_ID` / `CAFE24_CLIENT_SECRET` / `CAFE24_SCOPES`)
+- [x] 갱신 토큰 재발급, launch query 보존
+- [ ] 상품 조회가 디지털 상품 식별에 무엇을 주는지 테스트몰에서 확인 (이름 기반 자동 분류 금지, plan §4)
+
+## 필요한 환경변수 (Vercel)
+
+| 이름 | 값 |
+|---|---|
+| `CAFE24_CLIENT_ID` | `ICIi7fVaDyEARcfvSbom4B` |
+| `CAFE24_CLIENT_SECRET` | 재발급한 값 |
+| `CAFE24_REDIRECT_URI` | `https://cafe24-delivery-check.vercel.app/api/cafe24/oauth/callback` |
+| `CAFE24_SCOPES` | `mall.read_product` |
+| `TOKEN_ENCRYPTION_KEY` | `openssl rand -base64 32` |
 
 ## 등록으로 답할 질문
 

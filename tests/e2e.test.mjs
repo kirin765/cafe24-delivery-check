@@ -68,6 +68,13 @@ test("상품 export CSV를 업로드해 상품 목록으로 변환한다", async
   assert.match(catalog, /digital_confirmed/);
 });
 
+test("Cafe24 미연결 시 안내를 보여준다", async () => {
+  await page.goto(`${BASE_URL}/checks/new`);
+  await page.getByTestId("cafe24-load").click();
+  await page.getByTestId("cafe24-message").waitFor();
+  assert.match(await page.getByTestId("cafe24-message").textContent(), /연결되어 있지 않습니다/);
+});
+
 test("데모에서 자료 상태를 전환하면 판정이 바뀐다", async () => {
   await page.goto(`${BASE_URL}/demo`);
   await waitForSummary("missing", 1);
