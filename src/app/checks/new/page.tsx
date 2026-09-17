@@ -101,6 +101,7 @@ export default function NewCheckPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
+            data-testid="load-demo"
             onClick={loadDemo}
             className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
           >
@@ -108,6 +109,7 @@ export default function NewCheckPage() {
           </button>
           <button
             type="button"
+            data-testid="run-check"
             onClick={runCheck}
             disabled={blocked}
             className="rounded bg-slate-900 px-4 py-1.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"

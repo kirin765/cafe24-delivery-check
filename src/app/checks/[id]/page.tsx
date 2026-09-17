@@ -132,6 +132,7 @@ export default function CheckDetailPage() {
           </div>
           <button
             type="button"
+            data-testid="download-checklist"
             onClick={() => downloadTextFile(`delivery-check-${run.id}.csv`, buildChecklistCsv(run, resolutions))}
             className="rounded border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100"
           >
@@ -233,6 +234,8 @@ export default function CheckDetailPage() {
                     <span className="text-xs text-slate-500">{finding.label}</span>
                   </div>
                   <textarea
+                    data-testid="note-input"
+                    data-key={finding.key}
                     value={noteDrafts[finding.key] ?? saved?.note ?? ""}
                     onChange={(event) =>
                       setNoteDrafts((previous) => ({ ...previous, [finding.key]: event.target.value }))
@@ -244,6 +247,8 @@ export default function CheckDetailPage() {
                   <div className="mt-2 flex items-center gap-3">
                     <button
                       type="button"
+                      data-testid="save-note"
+                      data-key={finding.key}
                       onClick={() => saveNote(finding.key)}
                       className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100"
                     >
@@ -269,6 +274,7 @@ export default function CheckDetailPage() {
         <div className="mt-2 flex flex-wrap gap-2">
           <button
             type="button"
+            data-testid="fill-current"
             onClick={fillFromCurrent}
             className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
           >
@@ -276,6 +282,7 @@ export default function CheckDetailPage() {
           </button>
           <button
             type="button"
+            data-testid="run-recheck"
             onClick={runRecheck}
             disabled={hasBlockingErrors(parsedRecheck.issues) || parsedRecheck.catalog.length === 0}
             className="rounded bg-slate-900 px-3 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
@@ -285,6 +292,7 @@ export default function CheckDetailPage() {
           {recheckFindings && (
             <button
               type="button"
+              data-testid="save-new-run"
               onClick={saveAsNewRun}
               className="rounded border border-slate-900 px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-100"
             >
@@ -295,6 +303,7 @@ export default function CheckDetailPage() {
 
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           <textarea
+            data-testid="recheck-catalog"
             value={recheckCatalog}
             onChange={(event) => setRecheckCatalog(event.target.value)}
             rows={5}
@@ -303,6 +312,7 @@ export default function CheckDetailPage() {
             className="w-full rounded border border-slate-300 p-2 font-mono text-xs"
           />
           <textarea
+            data-testid="recheck-rules"
             value={recheckRules}
             onChange={(event) => setRecheckRules(event.target.value)}
             rows={5}
@@ -311,6 +321,7 @@ export default function CheckDetailPage() {
             className="w-full rounded border border-slate-300 p-2 font-mono text-xs"
           />
           <textarea
+            data-testid="recheck-evidence"
             value={recheckEvidence}
             onChange={(event) => setRecheckEvidence(event.target.value)}
             rows={5}
@@ -339,7 +350,13 @@ export default function CheckDetailPage() {
               </thead>
               <tbody>
                 {comparison.map((row) => (
-                  <tr key={row.key} className="border-b border-slate-100 align-top">
+                  <tr
+                    key={row.key}
+                    data-testid="comparison-row"
+                    data-key={row.key}
+                    data-change={row.change}
+                    className="border-b border-slate-100 align-top"
+                  >
                     <td className="py-2 pr-3">
                       <div className="font-medium text-slate-900">{row.productName}</div>
                       <div className="text-xs text-slate-500">

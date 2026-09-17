@@ -34,7 +34,13 @@ export function FindingsTable({ findings }: { findings: Finding[] }) {
                 {findings
                   .filter((finding) => finding.mallId === mallId)
                   .map((finding) => (
-                    <tr key={finding.key} className="border-b border-slate-100 align-top">
+                    <tr
+                      key={finding.key}
+                      data-testid="finding-row"
+                      data-key={finding.key}
+                      data-verdict={finding.verdict}
+                      className="border-b border-slate-100 align-top"
+                    >
                       <td className="py-3 pr-3">
                         <div className="font-medium text-slate-900">{finding.productName}</div>
                         <div className="text-xs text-slate-500">{targetLabel(finding)}</div>

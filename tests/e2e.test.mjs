@@ -1,0 +1,160 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test, { after, before } from "node:test";
+import { chromium } from "playwright-core";
+
+const BASE_URL = process.env.BASE_URL ?? "http://127.0.0.1:3211";
+const CHROME_PATH = process.env.CHROME_PATH ?? "/usr/bin/chromium";
+const MISSING_KEY = "demo-mall-a::1::1002::";
+
+let browser;
+let page;
+
+before(async () => {
+  browser = await chromium.launch({ executablePath: CHROME_PATH, headless: true });
+  const context = await browser.newContext();
+  page = await context.newPage();
+  await page.goto(`${BASE_URL}/`);
+  await page.evaluate(() => window.localStorage.clear());
+});
+
+after(async () => {
+  await browser?.close();
+});
+
+function summaryValue(verdict) {
+  return page.locator(
+    `[data-testid="summary-count"][data-verdict="${verdict}"] [data-testid="summary-count-value"]`,
+  );
+}
+
+async function waitForSummary(verdict, expected) {
+  await page.waitForFunction(
+    ({ verdict, expected }) => {
+      const element = document.querySelector(
+        `[data-testid="summary-count"][data-verdict="${verdict}"] [data-testid="summary-count-value"]`,
+      );
+      return element?.textContent?.trim() === String(expected);
+    },
+    { verdict, expected },
+    { timeout: 10_000 },
+  );
+}
+
+test("홈 화면이 범위 안내와 함께 로드된다", async () => {
+  await page.goto(`${BASE_URL}/`);
+  await page.getByRole("heading", { name: "디지털 상품 발송 설정 점검" }).waitFor();
+  await page.getByText("실제 발송 검증 아님", { exact: false }).first().waitFor();
+  await page.getByRole("link", { name: "합성 자료 데모 보기" }).waitFor();
+});
+
+test("데모에서 자료 상태를 전환하면 판정이 바뀐다", async () => {
+  await page.goto(`${BASE_URL}/demo`);
+  await waitForSummary("missing", 1);
+  await waitForSummary("unknown", 2);
+  await waitForSummary("configured", 2);
+
+  await page.getByTestId("scenario-incomplete").click();
+  await waitForSummary("missing", 0);
+  await waitForSummary("unknown", 3);
+
+  await page.getByTestId("scenario-stale").click();
+  await waitForSummary("missing", 0);
+  await waitForSummary("unknown", 7);
+  await waitForSummary("configured", 1);
+});
+
+test("새 점검을 실행하면 몰별 판정이 표시되고 업로드 요청이 없다", async () => {
+  const writes = [];
+  const listener = (request) => {
+    if (request.method() === "POST" || request.method() === "PUT" || request.method() === "PATCH") {
+      writes.push(`${request.method()} ${request.url()}`);
+    }
+  };
+  page.on("request", listener);
+
+  await page.goto(`${BASE_URL}/checks/new`);
+  await page.getByTestId("load-demo").click();
+  await page.waitForFunction(() => {
+    const button = document.querySelector('[data-testid="run-check"]');
+    return button instanceof HTMLButtonElement && !button.disabled;
+  });
+  await page.getByTestId("run-check").click();
+  await page.waitForURL(/\/checks\/[^/]+$/);
+
+  await page.locator('[data-testid="finding-row"]').first().waitFor();
+  assert.equal(await page.locator('[data-testid="finding-row"]').count(), 9);
+
+  const badges = (verdict) =>
+    page.locator(`[data-testid="verdict-badge"][data-verdict="${verdict}"]`).count();
+  assert.equal(await badges("configured"), 2);
+  assert.equal(await badges("missing"), 1);
+  assert.equal(await badges("not_applicable"), 1);
+
+  page.off("request", listener);
+  assert.deepEqual(writes, []);
+});
+
+test("체크리스트 CSV를 내려받을 수 있다", async () => {
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("download-checklist").click(),
+  ]);
+  assert.match(download.suggestedFilename(), /\.csv$/);
+  const path = await download.path();
+  const content = await readFile(path, "utf8");
+  assert.match(content, /operator_note/);
+  assert.match(content, /demo-mall-a::1::1002::/);
+  assert.match(content, /실제 발송 검증|설정 확인/);
+});
+
+test("수동 메모는 저장되지만 판정을 바꾸지 않는다", async () => {
+  const note = page.locator(`[data-testid="note-input"][data-key="${MISSING_KEY}"]`);
+  await note.fill("외부 앱에서 직접 수정함");
+  await page.locator(`[data-testid="save-note"][data-key="${MISSING_KEY}"]`).click();
+  await page.getByText("메모됨 · 검증 아님").first().waitFor();
+  assert.equal(
+    await page.locator(`[data-testid="finding-row"][data-key="${MISSING_KEY}"]`).getAttribute("data-verdict"),
+    "missing",
+  );
+});
+
+test("새 snapshot 비교로 메모와 새 자료 확인을 구분한다", async () => {
+  await page.getByTestId("fill-current").click();
+  await page.getByTestId("run-recheck").click();
+  await page.locator('[data-testid="comparison-row"]').first().waitFor();
+  assert.equal(
+    await page.locator('[data-testid="comparison-row"][data-change="unchanged"]').count(),
+    9,
+  );
+
+  const missingRow = page.locator(`[data-testid="comparison-row"][data-key="${MISSING_KEY}"]`);
+  assert.match(await missingRow.textContent(), /있음/);
+
+  const rules = page.getByTestId("recheck-rules");
+  const current = await rules.inputValue();
+  await rules.fill(
+    `${current.trimEnd()}\ndemo-mall-a,1,1002,,R-A-1002,product,active,이메일,2026-09-15,2026-09-16,e2e\n`,
+  );
+  await page.getByTestId("run-recheck").click();
+  await page.waitForFunction(
+    (key) =>
+      document
+        .querySelector(`[data-testid="comparison-row"][data-key="${key}"]`)
+        ?.getAttribute("data-change") === "resolved",
+    MISSING_KEY,
+    { timeout: 10_000 },
+  );
+
+  await page.getByTestId("save-new-run").click();
+  await page.waitForURL(/\/checks\/[^/]+$/);
+  await page.getByText("(재점검)").waitFor();
+  await page.locator('[data-testid="finding-row"]').first().waitFor();
+  const configured = page.locator('[data-testid="verdict-badge"][data-verdict="configured"]').count();
+  assert.equal(await configured, 3);
+});
+
+test("알 수 없는 점검 id는 안내 문구를 보여준다", async () => {
+  await page.goto(`${BASE_URL}/checks/does-not-exist`);
+  await page.getByText("저장된 점검을 불러오지 못했습니다", { exact: false }).waitFor();
+});

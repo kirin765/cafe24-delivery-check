@@ -51,6 +51,7 @@ export default function DemoPage() {
           <button
             key={item.id}
             type="button"
+            data-testid={`scenario-${item.id}`}
             onClick={() => setScenario(item.id)}
             className={`rounded border px-3 py-2 text-left text-sm ${
               scenario === item.id
@@ -68,9 +69,16 @@ export default function DemoPage() {
 
       <section className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {VERDICT_ORDER.map((verdict) => (
-          <div key={verdict} className="rounded-lg border border-slate-200 bg-white p-3">
+          <div
+            key={verdict}
+            data-testid="summary-count"
+            data-verdict={verdict}
+            className="rounded-lg border border-slate-200 bg-white p-3"
+          >
             <div className="text-xs text-slate-500">{VERDICT_LABELS[verdict]}</div>
-            <div className="text-xl font-semibold text-slate-900">{counts[verdict]}</div>
+            <div data-testid="summary-count-value" className="text-xl font-semibold text-slate-900">
+              {counts[verdict]}
+            </div>
           </div>
         ))}
       </section>

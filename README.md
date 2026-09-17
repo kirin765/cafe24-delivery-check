@@ -21,7 +21,11 @@ pnpm dev            # http://localhost:3000
 
 ```bash
 pnpm run verify     # lint + typecheck + test + build
+pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 ```
+
+`test:e2e`는 `CHROME_PATH`(기본 `/usr/bin/chromium`)의 Chromium을 사용합니다. 브라우저를 내려받지
+않습니다.
 
 ## 화면
 

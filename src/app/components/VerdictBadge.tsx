@@ -11,7 +11,11 @@ const STYLES: Record<Verdict, string> = {
 
 export function VerdictBadge({ verdict, label }: { verdict: Verdict; label: string }) {
   return (
-    <span className={`inline-block whitespace-nowrap rounded border px-2 py-0.5 text-xs font-medium ${STYLES[verdict]}`}>
+    <span
+      data-testid="verdict-badge"
+      data-verdict={verdict}
+      className={`inline-block whitespace-nowrap rounded border px-2 py-0.5 text-xs font-medium ${STYLES[verdict]}`}
+    >
       {label}
     </span>
   );

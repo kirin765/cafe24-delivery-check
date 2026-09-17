@@ -10,6 +10,7 @@
 | `pnpm run typecheck` | 오류 0 | ☐ |
 | `pnpm run test` | 4 파일 / 30 테스트 통과 | ☐ |
 | `pnpm run build` | 5 라우트 생성, `/checks/[id]` 동적 | ☐ |
+| `pnpm run test:e2e` | 7 E2E 통과 (홈·데모 전환·점검 실행·CSV 다운로드·메모·재점검·미존재 id) | ☐ |
 | `pnpm run verify` | 위 일괄 통과 | ☐ |
 
 ## 1. 데모 (`/demo`)
