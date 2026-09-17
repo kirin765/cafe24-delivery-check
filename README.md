@@ -34,7 +34,7 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 | `/` | 범위 안내 |
 | `/demo` | 합성 자료 데모. 완전/불완전/오래된 자료를 전환 |
 | `/checks/new` | 상품·규칙·근거 CSV 입력, 상품 export 변환, 가져오기 오류·완전성 확인 |
-| `/checks/[id]` | 몰별 판정·근거·수정 체크리스트·재점검 비교 |
+| `/checks/[id]` | 몰별 판정·근거·수정 체크리스트·규칙 확인 서식·재점검 비교 |
 
 점검 결과는 브라우저 `localStorage`에 저장됩니다. 서버 저장·로그인·Cafe24 조회는 아직 없습니다.
 
@@ -56,6 +56,16 @@ pnpm run test:e2e   # build + next start + Playwright E2E (system chromium)
 - `digital_confirmed`는 상품명으로 자동 분류하지 않습니다. 고정값으로 주거나, 운영자가 확인한
   분류 열과 값(예: `세분류 = eBook`)을 "디지털 판정 열"로 직접 지정합니다.
 - 파일은 브라우저에서만 읽고 서버로 보내지 않습니다.
+
+### 규칙 확인 서식 (수동)
+
+외부 발송 서비스에 규칙 export가 없어도 점검할 수 있습니다. 점검 결과 화면에서 **규칙 서식**을 내려받으면
+디지털 상품별 행이 채워집니다.
+
+- 규칙이 있으면 `rule_id`를 실제 값으로, `active`를 `active`/`inactive`로 바꿉니다.
+- 규칙이 없으면 그 행을 삭제합니다.
+- 모든 상품을 확인했으면 **근거 서식**의 `complete`를 `yes`로 바꿉니다. `complete=no`면 누락으로
+  단정하지 않고 판정 불가로 남습니다.
 
 ### 상품 목록 (`catalog.csv`)
 

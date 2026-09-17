@@ -128,6 +128,23 @@ test("체크리스트 CSV를 내려받을 수 있다", async () => {
   assert.match(content, /실제 발송 검증|설정 확인/);
 });
 
+test("규칙/근거 확인 서식을 내려받는다", async () => {
+  const [rules] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("download-rules-template").click(),
+  ]);
+  const rulesText = await readFile(await rules.path(), "utf8");
+  assert.match(rulesText, /TBD-demo-mall-a-1002/);
+  assert.match(rulesText, /,unknown,/);
+
+  const [evidence] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId("download-evidence-template").click(),
+  ]);
+  const evidenceText = await readFile(await evidence.path(), "utf8");
+  assert.match(evidenceText, /demo-mall-a,no,/);
+});
+
 test("수동 메모는 저장되지만 판정을 바꾸지 않는다", async () => {
   const note = page.locator(`[data-testid="note-input"][data-key="${MISSING_KEY}"]`);
   await note.fill("외부 앱에서 직접 수정함");

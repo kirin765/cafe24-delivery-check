@@ -7,6 +7,7 @@ import { FindingsTable } from "@/app/components/FindingsTable";
 import { IssueList } from "@/app/components/IssueList";
 import { CHANGE_LABELS, compareFindings } from "@/features/checks/compare";
 import { buildChecklistCsv, downloadTextFile } from "@/features/checks/checklist";
+import { buildEvidenceTemplateCsv, buildRulesTemplateCsv } from "@/features/checks/templates";
 import { evaluateReadiness, VERDICT_LABELS } from "@/features/checks/evaluateReadiness";
 import {
   getResolutionsSnapshot,
@@ -210,6 +211,36 @@ export default function CheckDetailPage() {
         </div>
         <div className="mt-3">
           <FindingsTable findings={visible} />
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-slate-900">규칙 확인 서식 (수동)</h2>
+        <p className="mt-1 text-xs text-slate-500">
+          외부 발송 서비스에 규칙 export가 없을 때, 디지털 상품별로 규칙을 확인해 서식을 채웁니다.
+          규칙이 실제로 있으면 <code>rule_id</code>를 실제 값으로 바꾸고 <code>active</code>를
+          active/inactive로, 규칙이 없으면 그 행을 삭제하세요. 모든 상품을 확인했으면 근거 서식의{" "}
+          <code>complete</code>를 yes로 바꿉니다.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            data-testid="download-rules-template"
+            onClick={() => downloadTextFile("rules-template.csv", buildRulesTemplateCsv(run.catalog))}
+            className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
+          >
+            규칙 서식 내려받기
+          </button>
+          <button
+            type="button"
+            data-testid="download-evidence-template"
+            onClick={() =>
+              downloadTextFile("evidence-template.csv", buildEvidenceTemplateCsv(run.evidence))
+            }
+            className="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-100"
+          >
+            근거 서식 내려받기
+          </button>
         </div>
       </section>
 
