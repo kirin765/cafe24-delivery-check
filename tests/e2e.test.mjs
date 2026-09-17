@@ -22,12 +22,6 @@ after(async () => {
   await browser?.close();
 });
 
-function summaryValue(verdict) {
-  return page.locator(
-    `[data-testid="summary-count"][data-verdict="${verdict}"] [data-testid="summary-count-value"]`,
-  );
-}
-
 async function waitForSummary(verdict, expected) {
   await page.waitForFunction(
     ({ verdict, expected }) => {
