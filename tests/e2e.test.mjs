@@ -146,12 +146,19 @@ test("새 snapshot 비교로 메모와 새 자료 확인을 구분한다", async
     { timeout: 10_000 },
   );
 
+  const previousUrl = page.url();
   await page.getByTestId("save-new-run").click();
-  await page.waitForURL(/\/checks\/[^/]+$/);
-  await page.getByText("(재점검)").waitFor();
+  await page.waitForFunction((before) => window.location.href !== before, previousUrl, {
+    timeout: 10_000,
+  });
+  await page.getByRole("heading", { name: /\(재점검\)/ }).waitFor();
   await page.locator('[data-testid="finding-row"]').first().waitFor();
-  const configured = page.locator('[data-testid="verdict-badge"][data-verdict="configured"]').count();
-  assert.equal(await configured, 3);
+  await page.waitForFunction(
+    () =>
+      document.querySelectorAll('[data-testid="verdict-badge"][data-verdict="configured"]').length === 3,
+    undefined,
+    { timeout: 10_000 },
+  );
 });
 
 test("알 수 없는 점검 id는 안내 문구를 보여준다", async () => {
